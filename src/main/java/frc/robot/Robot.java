@@ -20,8 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.RobotContainer;
 import frc.lib.RobotInstance;
-import frc.lib.replay.WPILogReadMACAddress;
-import frc.robot.Robot25.commands.DriveCommands;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -142,8 +140,7 @@ public class Robot extends LoggedRobot {
 
   private RobotContainer getRobotContainerFromInstance(RobotInstance instance) {
     return switch (instance) {
-      case Robot24 -> new frc.robot.Robot24.RobotContainer();
-      case Robot25 -> new frc.robot.Robot25.RobotContainer();
+      case Robot25 -> new frc.robot.DefenseRobot26.RobotContainer();
       case Simulator -> SimConstants.SIM_ROBOT_SUPPLIER.get();
       default -> throw new RuntimeException("Unsupported robot instance: " + instance.toString());
     };
