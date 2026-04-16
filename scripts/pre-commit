@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# 1. Determine OS and set WPILib 2026 JDK path
+# We determine the OS first to set the correct JAVA_HOME before calling Gradle.
+if [ "$(expr substr $(uname -s) 1 5)" = "MINGW" ] || [ "$(expr substr $(uname -s) 1 6)" = "CYGWIN" ]; then
+    GRADLE_CMD="./gradlew.bat"
+    export JAVA_HOME="/c/Users/Public/wpilib/2026/jdk" 
+else
+    GRADLE_CMD="./gradlew"
+    export JAVA_HOME="$HOME/wpilib/2026/jdk"
+fi
+
+# Sanity check: Ensure the detected JAVA_HOME actually exists
+if [ ! -d "$JAVA_HOME" ]; then
+    echo "Warning: WPILib 2026 JDK not found at $JAVA_HOME"
+    echo "Falling back to system Java..."
+    # We do not exit here, we just let it try the system java as a fallback
+fi
+
+# 2. Run Spotless Apply
+$GRADLE_CMD spotlessApply
+
+# Check if Spotless failed
+RETVAL=$?
+if [ $RETVAL -ne 0 ]; then
+    echo "Spotless check failed. Please fix the issues."
+    exit 1
+fi
+
+# 3. Re-add files that were changed by Spotless
+# We only want to re-add files that are *already staged* to avoid 
+# accidentally committing changes you intended to leave unstaged.
+git diff --name-only --cached | while read file; do
+    if [ -f "$file" ]; then
+        git add "$file"
+    fi
+done
+
+exit 0

@@ -1,0 +1,56 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Anvith #1 Path"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Anvith #2 Path"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Half Anvith #3 Path"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeFor5Secs"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Half Anvith #4 Path"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SuperAutoShootT17"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Week 5 Autos",
+  "choreoAuto": false
+}

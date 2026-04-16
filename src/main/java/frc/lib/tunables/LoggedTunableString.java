@@ -1,23 +1,20 @@
 package frc.lib.tunables;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
-import org.littletonrobotics.junction.networktables.LoggedNetworkString;
-
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.MatchType;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.PubSubOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
 public class LoggedTunableString extends LoggedNetworkString implements LoggedTunable<String> {
 
   private final String defaultValue;
   private final StringEntry entry;
-  private final List<WeakReference<Consumer<String>>> listeners;
+  private final List<Consumer<String>> listeners;
 
   public String getDefaultValue() {
     return defaultValue;
@@ -27,15 +24,18 @@ public class LoggedTunableString extends LoggedNetworkString implements LoggedTu
     return get();
   }
 
-  public List<WeakReference<Consumer<String>>> getListeners() {
+  public List<Consumer<String>> getListeners() {
     return listeners;
   }
 
   public LoggedTunableString(String key, String defaultValue) {
     super(key, defaultValue);
     this.defaultValue = defaultValue;
-    entry = NetworkTableInstance.getDefault().getStringTopic(key).getEntry(defaultValue,
-        PubSubOption.keepDuplicates(false), PubSubOption.pollStorage(1));
+    entry =
+        NetworkTableInstance.getDefault()
+            .getStringTopic(key)
+            .getEntry(
+                defaultValue, PubSubOption.keepDuplicates(false), PubSubOption.pollStorage(1));
     listeners = new ArrayList<>();
   }
 

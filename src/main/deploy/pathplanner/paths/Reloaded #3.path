@@ -1,0 +1,59 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 6.501159934497816,
+        "y": 5.284387907114264
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.7010629889919935,
+        "y": 5.375442878911935
+      },
+      "isLocked": false,
+      "linkedName": "Reloaded.2"
+    },
+    {
+      "anchor": {
+        "x": 2.8577144173034936,
+        "y": 4.975319607441777
+      },
+      "prevControl": {
+        "x": 2.8328812431768555,
+        "y": 6.063192151109899
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5819339181893688,
+      "rotationDegrees": -45.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -34.667004560030506
+  },
+  "reversed": false,
+  "folder": "Jithin",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 106.32413542569226
+  },
+  "useDefaultConstraints": false
+}

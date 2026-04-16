@@ -1,4 +1,4 @@
-package frc.lib.limeLight;
+package frc.lib.limelight;
 
 import edu.wpi.first.net.PortForwarder;
 

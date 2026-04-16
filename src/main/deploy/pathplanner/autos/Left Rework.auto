@@ -1,0 +1,87 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Deploy"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Q.1.L"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SnapToHub12"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoScore12"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Deploy"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Q.2.L"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SnapToHub12"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoScore12"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Quals Day 2",
+  "choreoAuto": false
+}

@@ -1,50 +1,57 @@
 {
+  "java.compile.nullAnalysis.mode": "automatic",
   "java.configuration.updateBuildConfiguration": "automatic",
-  "java.server.launchMode": "Hybrid",
-  "files.exclude": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
-    "**/.DS_Store": true,
-    "**/.gradle": true,
-    "**/gradlew": true,
-    "**/gradlew.bat": true,
-    "bin/": true,
-    "**/.classpath": true,
-    "**/.project": true,
-    "**/.settings": true,
-    "**/.factorypath": true,
-    "**/*~": true,
-    "**/BuildConstants.java": true,
-    "**/.kotlin": true,
-    "*.log": true,
-    ".wpilib": true,
-    "gradle": true,
-    "ctre_sim": true,
-    "build": true,
-    "WPILib-License.md": true,
-    "**/simgui*.json": true,
-    "**/networktables.json": true,
-    "vendordeps": true,
-    "config": true
+  // FORCE Red Hat Java to use the remote Google Style Guide
+  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+  "java.format.settings.profile": "GoogleStyle",
+  "editor.defaultFormatter": null,
+
+  // Format on Save: YES. This minimizes pre-commit hook failures.
+  "editor.formatOnSave": false,
+
+  // DISABLE generic editor trimming (Spotless handles this; dual handling causes conflicts)
+  "files.trimTrailingWhitespace": false,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+
+  // Match Gradle build encoding
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+
+  // Reduce visual clutter
+  "search.exclude": {
+      "**/build": true,
+      "**/.gradle": true
   },
+  "files.exclude": {
+      "**/.git": true,
+      "**/build": true,
+      "**/.gradle": true,
+      "**/bin": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/.classpath": true,
+      "**/.project": true,
+      "**/.settings": true,
+      "**/.factorypath": true,
+      "**/*~": true
+  },
+  "java.server.launchMode": "Standard",
   "java.test.config": [
     {
       "name": "WPIlibUnitTests",
       "workingDirectory": "${workspaceFolder}/build/jni/release",
-      "vmargs": [
-        "-Djava.library.path=${workspaceFolder}/build/jni/release"
-      ],
+      "vmargs": [ "-Djava.library.path=${workspaceFolder}/build/jni/release" ],
       "env": {
-        "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release",
+        "LD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release" ,
         "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/jni/release"
       }
     },
-    null
   ],
   "java.test.defaultConfig": "WPIlibUnitTests",
-  "java.import.gradle.annotationProcessing.enabled": true,
+  "java.import.gradle.annotationProcessing.enabled": false,
   "java.completion.favoriteStaticMembers": [
     "org.junit.Assert.*",
     "org.junit.Assume.*",
@@ -56,13 +63,6 @@
     "org.mockito.ArgumentMatchers.*",
     "org.mockito.Answers.*",
     "edu.wpi.first.units.Units.*"
-  ],
-  "java.completion.guessMethodArguments": "off",
-  "java.completion.importOrder": [
-    "#",
-    "frc.robot.*",
-    "frc.lib.*",
-    "edu.wpi.first.*"
   ],
   "java.completion.filteredTypes": [
     "java.awt.*",
@@ -80,21 +80,8 @@
     "javax.smartcardio.*",
     "edu.wpi.first.math.proto.*",
     "edu.wpi.first.math.**.proto.*",
-    "edu.wpi.first.math.**.struct.*"
+    "edu.wpi.first.math.**.struct.*",
   ],
-  "editor.formatOnSave": true,
-  "files.autoSave": "afterDelay",
-  "files.autoSaveDelay": 1000,
-  "editor.tabSize": 2,
-  "editor.insertSpaces": true,
-  "editor.detectIndentation": false,
-  "[java]": {
-    "editor.defaultFormatter": "redhat.java",
-    "files.trimTrailingWhitespace": false,
-    "editor.codeActionsOnSave": {}
-  },
-  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
-  "java.format.settings.profile": "GoogleStyle",
-  "java.debug.settings.onBuildFailureProceed": true,
-  "C_Cpp.errorSquiggles": "disabled"
+  "java.dependency.enableDependencyCheckup": false,
+  "java.debug.settings.onBuildFailureProceed": false
 }

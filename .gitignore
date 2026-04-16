@@ -186,13 +186,5 @@ compile_commands.json
 # Eclipse generated file for annotation processors
 .factorypath
 
-# Ignore generated build constants by AdvantageKit
-BuildConstants.java
-
-# Ignore simgui and network table files created by simulator
-simgui*
-networktables.json
-
-# Ignore changes to editor settings and metadata
-.zed/
-.vscode/
+# AdvantageKit
+**/BuildConstants.java

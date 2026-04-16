@@ -1,12 +1,32 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.3.2"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
 
     // Add gversion plugin for AdvantageKit
     id "com.peterabeles.gversion" version "1.10"
 
     // Spotless for format checking
-    id "com.diffplug.spotless" version "7.0.2"
+    id "com.diffplug.spotless" version "6.25.0"
+
+    // SpotBugs for static bytecode analysis
+    id "com.github.spotbugs" version "6.4.8"
+}
+
+spotbugs {
+    excludeFilter = file("spotbugs-exclude.xml")
+}
+
+// Disable SpotBugs from running during normal builds.
+// It will only run when explicitly invoked (pre-commit hook or CI).
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+    enabled = false
+}
+
+// Allow enabling SpotBugs explicitly via: ./gradlew build -PrunSpotBugs
+if (project.hasProperty('runSpotBugs')) {
+    tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+        enabled = true
+    }
 }
 
 java {
@@ -14,7 +34,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-def ROBOT_MAIN_CLASS = "frc.robot.Main"
+def ROBOT_MAIN_CLASS = "frc.lib.infrastructure.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -62,6 +82,11 @@ wpi.java.debugJni = false
 // Set this to true to enable desktop support.
 def includeDesktopSupport = true
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 5.
 dependencies {
@@ -89,9 +114,12 @@ dependencies {
     // Install AdvantageKit into existing project
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
+
+    compileOnly 'com.github.spotbugs:spotbugs-annotations:4.9.8'
+    testCompileOnly 'com.github.spotbugs:spotbugs-annotations:4.9.8'
 }
 
-test {
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
@@ -100,15 +128,26 @@ test {
 wpi.sim.addGui().defaultEnabled = providers.environmentVariable('AKIT_SIM_MODE').map(env -> env.equals("SIM")).orElse(true)
 wpi.sim.addDriverstation()
 
+// --- OLD JAR ---
+// jar {
+//     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+//     from sourceSets.main.allSource
+//     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
+//     duplicatesStrategy = DuplicatesStrategy.INCLUDE
+// }
+
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-    from sourceSets.main.allSource
+    from('src') { into 'backup/src' }
+    from('vendordeps') { into 'backup/vendordeps' }
+    from('build.gradle') { into 'backup' }
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
+
 
 // Configure jar and deploy tasks
 deployArtifact.jarTask = jar
@@ -125,12 +164,12 @@ task(replayWatch, type: JavaExec) {
     mainClass = "org.littletonrobotics.junction.ReplayWatch"
     classpath = sourceSets.main.runtimeClasspath
 }
-
+    
 // Setup Version Control for AdvantageKit
 project.compileJava.dependsOn(createVersionFile)
 gversion {
   srcDir       = "src/main/java/"
-  classPackage = "frc.robot"
+  classPackage = "frc.lib.infrastructure"
   className    = "BuildConstants"
   dateFormat   = "yyyy-MM-dd HH:mm:ss z"
   timeZone     = "America/Central" // Use preferred time zone
@@ -171,9 +210,68 @@ task(eventDeploy) {
 createVersionFile.dependsOn(eventDeploy)
 
 spotless {
-  java {
-    eclipse().configFile('config/eclipse-java-google-style.xml')
-    targetExclude('build/**', 'src/main/java/frc/robot/BuildConstants.java')
-  }
-  enforceCheck = false
+    java {
+        googleJavaFormat('1.25.0') 
+        
+        targetExclude('build/**', 'src/main/java/frc/robot/BuildConstants.java')
+        
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    enforceCheck = false
 }
+
+task installGitHooks {
+    def sourceFile = file('scripts/pre-commit')
+    def destFile = file('.git/hooks/pre-commit')
+    def gitDir = file('.git')
+
+    inputs.file(sourceFile)
+    
+    // Only declare output if .git is a directory to avoid Gradle validation error
+    // when .git is a file (worktree).
+    if (gitDir.exists() && gitDir.isDirectory()) {
+        outputs.file(destFile)
+    }
+
+    doLast {
+        // 1. Ensure the source exists
+        if (!sourceFile.exists()) {
+            println "⚠️ Warning: 'scripts/pre-commit' not found. Skipping hook installation."
+            return
+        }
+
+        // 2. Check if .git is a real directory (not a worktree file or link)
+        if (!gitDir.exists() || !gitDir.isDirectory()) {
+            println "⚠️ Warning: .git is not a directory (likely a worktree). Skipping hook installation."
+            return
+        }
+
+        // 3. Read content and FORCE Unix line endings (LF), removing Windows (CRLF)
+        // This fixes the "cannot spawn" / "no such file" error regarding the shebang.
+        def content = sourceFile.text.replaceAll('\r\n', '\n').replaceAll('\r', '\n')
+
+        // 4. Write to the .git/hooks directory
+        if (!destFile.parentFile.exists()) {
+            destFile.parentFile.mkdirs()
+        }
+        destFile.write(content)
+
+        // 5. Set executable permissions
+        // On Windows, this is handled by the file write, but explicitly ignored.
+        // On Mac/Linux, this sets the +x bit.
+        if (!System.getProperty('os.name').toLowerCase().contains('windows')) {
+            try {
+                exec { commandLine 'chmod', '+x', destFile.absolutePath }
+            } catch (Exception e) {
+                println "⚠️ Could not set executable permission: " + e.message
+            }
+        }
+        
+        println "✅ Git pre-commit hook installed successfully with LF line endings."
+    }
+}
+
+// Ensure the hook is installed every time the project is compiled
+compileJava.dependsOn installGitHooks
