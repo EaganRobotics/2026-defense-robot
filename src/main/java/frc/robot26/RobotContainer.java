@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.simulation.SimConstants;
 import frc.robot26.commands.DriveCommands;
+import frc.robot26.commands.LEDCommands;
 import frc.robot26.commands.SnapCommands;
 import frc.robot26.generated.TunerConstants;
 import frc.robot26.subsystems.drive.Drive;
@@ -24,6 +25,10 @@ import frc.robot26.subsystems.drive.GyroIOSim;
 import frc.robot26.subsystems.drive.ModuleIO;
 import frc.robot26.subsystems.drive.ModuleIOSim;
 import frc.robot26.subsystems.drive.ModuleIOTalonFX;
+import frc.robot26.subsystems.leds.LEDs;
+import frc.robot26.subsystems.leds.LEDsIO;
+import frc.robot26.subsystems.leds.LEDsIOCANdle;
+import frc.robot26.subsystems.leds.LEDsIOSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
@@ -35,6 +40,7 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
 
   // Subsystems
   private Drive drive;
+  private LEDs leds;
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -70,6 +76,7 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 driveSimulation::setSimulationWorldPose);
+        leds = new LEDs(new LEDsIOCANdle());
         break;
       case SIM:
         super.configureDriveSimulation(driveSimulation);
@@ -82,8 +89,9 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
                 new ModuleIOSim(driveSimulation.getModules()[3]),
                 driveSimulation::setSimulationWorldPose);
         drive.setPose(SimConstants.SIM_INITIAL_FIELD_POSE);
+        leds = new LEDs(new LEDsIOSim());
 
-        boolean isCI = System.getenv("CI") != null;
+        // boolean isCI = System.getenv("CI") != null;
         break;
       case REPLAY:
         drive =
@@ -94,6 +102,7 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 driveSimulation::setSimulationWorldPose);
+        leds = new LEDs(new LEDsIO() {});
         break;
       default:
         drive =
@@ -104,6 +113,7 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 driveSimulation::setSimulationWorldPose);
+        leds = new LEDs(new LEDsIO() {});
         throw new IllegalStateException(
             "SimConstants.CURRENT_MODE was invalid: " + SimConstants.CURRENT_MODE);
     }
@@ -164,6 +174,9 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
             () -> driverController.getLeftY(),
             () -> driverController.getLeftX(),
             () -> driverController.getRightX()));
+
+    // Use animated LEDs as the default behavior
+    leds.setDefaultCommand(LEDCommands.anim(leds));
 
     // =========================================
     // ============ Driver Controls ============
