@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot26.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -286,5 +287,11 @@ public class ModuleIOTalonFX implements ModuleIO {
           case TorqueCurrentFOC ->
               positionTorqueCurrentRequest.withPosition(rotation.getRotations());
         });
+  }
+
+  @Override
+  public void addOrchestraInstruments(Orchestra orchestra) {
+    orchestra.addInstrument(driveTalon);
+    orchestra.addInstrument(turnTalon);
   }
 }

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot26.subsystems.leds.LEDsIO.Animation;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -16,7 +17,7 @@ public class LEDs extends SubsystemBase {
   }
 
   public Command setColor(Supplier<Color> colorSupplier) {
-    return this.runEnd(
+    return this.startEnd(
             () -> {
               Color color = colorSupplier.get();
               io.setColor(
@@ -32,6 +33,18 @@ public class LEDs extends SubsystemBase {
         .withName("LEDs.setColor");
   }
 
+  public Command setAnimation(Animation animation) {
+    return this.startEnd(
+            () -> {
+              io.setAnimation(animation);
+            },
+            () -> {
+              io.setColor(new Color8Bit(0, 0, 0));
+            })
+        .ignoringDisable(true);
+  }
+  ;
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);
@@ -39,10 +52,10 @@ public class LEDs extends SubsystemBase {
   }
 
   /** Returns a command that starts the CANdle-built-in rainbow animation and never ends. */
-  public Command rainbow() {
-    // Repeatedly call playRainbow() (safe) and clear color on end.
-    return this.runEnd(() -> io.playRainbow(), () -> io.setColor(new Color8Bit()))
-        .ignoringDisable(true)
-        .withName("LEDs.rainbow");
-  }
+  // public Command rainbow() {
+  //   // Repeatedly call playRainbow() (safe) and clear color on end.
+  //   return this.runEnd(() -> io.playRainbow(), () -> io.setColor(new Color8Bit()))
+  //       .ignoringDisable(true)
+  //       .withName("LEDs.rainbow");
+  // }
 }

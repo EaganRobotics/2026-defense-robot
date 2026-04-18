@@ -7,6 +7,7 @@
 
 package frc.robot26.subsystems.drive;
 
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -137,5 +138,10 @@ public class Module {
   /** Returns the module velocity in rotations/sec (Phoenix native units). */
   public double getFFCharacterizationVelocity() {
     return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
+  }
+
+  /** Adds this module's Talon devices (if any) to the provided Orchestra. */
+  public void addOrchestraInstruments(Orchestra orchestra) {
+    io.addOrchestraInstruments(orchestra);
   }
 }

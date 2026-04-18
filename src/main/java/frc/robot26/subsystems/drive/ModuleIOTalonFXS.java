@@ -10,6 +10,7 @@ package frc.robot26.subsystems.drive;
 import static frc.robot26.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
@@ -247,5 +248,11 @@ public class ModuleIOTalonFXS implements ModuleIO {
   @Override
   public void setTurnPosition(Rotation2d rotation) {
     turnTalon.setControl(positionVoltageRequest.withPosition(rotation.getRotations()));
+  }
+
+  @Override
+  public void addOrchestraInstruments(Orchestra orchestra) {
+    orchestra.addInstrument(driveTalon);
+    orchestra.addInstrument(turnTalon);
   }
 }

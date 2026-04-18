@@ -9,6 +9,7 @@ package frc.robot26.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.Orchestra;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -398,5 +399,12 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+
+  /** Adds all Talon instruments in the swerve modules to the provided Orchestra. */
+  public void addOrchestraInstruments(Orchestra orchestra) {
+    for (var module : modules) {
+      module.addOrchestraInstruments(orchestra);
+    }
   }
 }

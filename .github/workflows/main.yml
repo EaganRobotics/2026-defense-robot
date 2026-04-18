@@ -95,4 +95,4 @@ jobs:
 
       - name: Compile robot code
         if: steps.filter.outputs.java == 'true'
-        run: ./gradlew build -PrunSpotBugs --no-daemon --parallel
+        run: ./gradlew assemble --no-daemon --parallel

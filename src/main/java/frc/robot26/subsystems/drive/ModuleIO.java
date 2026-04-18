@@ -7,6 +7,7 @@
 
 package frc.robot26.subsystems.drive;
 
+import com.ctre.phoenix6.Orchestra;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -46,4 +47,7 @@ public interface ModuleIO {
 
   /** Run the turn motor to the specified rotation. */
   public default void setTurnPosition(Rotation2d rotation) {}
+
+  /** Adds any Talon instruments in this module to the provided Orchestra. */
+  public default void addOrchestraInstruments(Orchestra orchestra) {}
 }

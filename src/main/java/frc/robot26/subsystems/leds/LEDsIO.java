@@ -15,11 +15,16 @@ public interface LEDsIO {
     public boolean limit = false;
   }
 
+  public enum Animation {
+    RAINBOW,
+    FIRE;
+  }
+
   /** Updates the set of loggable inputs. */
   public default void updateInputs(LEDsIOInputs inputs) {}
 
   public default void setColor(Color8Bit color) {}
 
   /** Play the CANdle built-in rainbow animation (if supported by the IO). */
-  public default void playRainbow() {}
+  public default void setAnimation(Animation animation) {}
 }

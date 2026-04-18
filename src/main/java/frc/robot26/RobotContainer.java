@@ -2,9 +2,9 @@ package frc.robot26;
 
 import static edu.wpi.first.units.Units.Feet;
 
+import com.ctre.phoenix6.Orchestra;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -16,6 +16,7 @@ import frc.lib.simulation.SimConstants;
 import frc.robot26.commands.DriveCommands;
 import frc.robot26.commands.LEDCommands;
 import frc.robot26.commands.SnapCommands;
+import frc.robot26.commands.TalonOrchestraCommands;
 import frc.robot26.generated.TunerConstants;
 import frc.robot26.subsystems.drive.Drive;
 import frc.robot26.subsystems.drive.DriveSimConfig;
@@ -27,6 +28,7 @@ import frc.robot26.subsystems.drive.ModuleIOSim;
 import frc.robot26.subsystems.drive.ModuleIOTalonFX;
 import frc.robot26.subsystems.leds.LEDs;
 import frc.robot26.subsystems.leds.LEDsIO;
+import frc.robot26.subsystems.leds.LEDsIO.Animation;
 import frc.robot26.subsystems.leds.LEDsIOCANdle;
 import frc.robot26.subsystems.leds.LEDsIOSim;
 import org.ironmaple.simulation.SimulatedArena;
@@ -35,12 +37,14 @@ import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-@SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_SUPERCLASS")
 public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
 
   // Subsystems
   private Drive drive;
   private LEDs leds;
+  private Orchestra talonOrchestra;
+
+  private static final String ORCHESTRA_FILE = "music/song.chrp";
 
   // Controllers
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -77,6 +81,8 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 driveSimulation::setSimulationWorldPose);
         leds = new LEDs(new LEDsIOCANdle());
+        talonOrchestra = new Orchestra();
+        drive.addOrchestraInstruments(talonOrchestra);
         break;
       case SIM:
         super.configureDriveSimulation(driveSimulation);
@@ -90,6 +96,7 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
                 driveSimulation::setSimulationWorldPose);
         drive.setPose(SimConstants.SIM_INITIAL_FIELD_POSE);
         leds = new LEDs(new LEDsIOSim());
+        talonOrchestra = null;
 
         // boolean isCI = System.getenv("CI") != null;
         break;
@@ -103,6 +110,7 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
                 new ModuleIO() {},
                 driveSimulation::setSimulationWorldPose);
         leds = new LEDs(new LEDsIO() {});
+        talonOrchestra = null;
         break;
       default:
         drive =
@@ -114,6 +122,7 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
                 new ModuleIO() {},
                 driveSimulation::setSimulationWorldPose);
         leds = new LEDs(new LEDsIO() {});
+        talonOrchestra = null;
         throw new IllegalStateException(
             "SimConstants.CURRENT_MODE was invalid: " + SimConstants.CURRENT_MODE);
     }
@@ -134,6 +143,10 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
         "SnapToHub", SnapCommands.snapToRadius(drive, Feet.of(7.5)).withTimeout(2));
     NamedCommands.registerCommand(
         "SnapToHub12", SnapCommands.snapToRadius(drive, Feet.of(11.5)).withTimeout(3));
+
+    NamedCommands.registerCommand(
+        "PlayOrchestra", TalonOrchestraCommands.play(talonOrchestra, ORCHESTRA_FILE));
+    NamedCommands.registerCommand("StopOrchestra", TalonOrchestraCommands.stop(talonOrchestra));
 
     // NamedCommands.registerCommand(
     // "AutoShoot", RollerCommands.shootOpenLoop(shooter, floor, feeder,
@@ -176,7 +189,8 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
             () -> driverController.getRightX()));
 
     // Use animated LEDs as the default behavior
-    leds.setDefaultCommand(LEDCommands.anim(leds));
+    // leds.setDefaultCommand(LEDCommands.anim(leds));
+    leds.setDefaultCommand(LEDCommands.setColor(leds));
 
     // =========================================
     // ============ Driver Controls ============
@@ -198,6 +212,13 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
     // driverController.a().whileTrue(SnapCommands.snapToRadius(drive, Feet.of(7.5)));
     // driverController.y().whileTrue(SnapCommands.snapToRadius(drive, Feet.of(11.5)));
     driverController.y().whileTrue(SnapCommands.tuneableSnapToRadius(drive));
+
+    driverController
+        .leftBumper()
+        .onTrue(TalonOrchestraCommands.play(talonOrchestra, ORCHESTRA_FILE));
+    driverController.rightBumper().onTrue(TalonOrchestraCommands.stop(talonOrchestra));
+    driverController.leftTrigger().whileTrue(leds.setAnimation(Animation.RAINBOW));
+    driverController.rightTrigger().whileTrue(leds.setAnimation(Animation.FIRE));
 
     // Lock to hub when A button is held
     // driverController
@@ -224,12 +245,9 @@ public class RobotContainer extends frc.lib.infrastructure.RobotContainer {
     //             }));
   }
 
-  private boolean hasBeenInTeleop = false;
-
   @Override
   public void teleopInit() {
     // drive.swerveBreak(true);
-    hasBeenInTeleop = true;
   }
 
   @Override

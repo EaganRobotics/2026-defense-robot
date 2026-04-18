@@ -34,12 +34,11 @@ public class LEDCommands {
         });
   }
 
-  public static Command anim(LEDs leds) {
-    // Use CANdle's built-in rainbow animation via the LEDs subsystem.
-    return leds.rainbow();
-  }
+  // public static Command anim(LEDs leds) {
+  //   // Use CANdle's built-in rainbow animation via the LEDs subsystem.
+  //   return leds.rainbow();
+  // }
 
-  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings("DMI_HARDCODED_ABSOLUTE_FILENAME")
   public static boolean isUSBPluggedIn() {
     if (RobotBase.isSimulation()) {
       return true;
@@ -57,4 +56,11 @@ public class LEDCommands {
       }
     }
   }
+
+  public static Command setColor(LEDs leds) {
+    return leds.setColor(() -> new Color(0, 23, 255));
+  }
 }
+;
+;
+;
